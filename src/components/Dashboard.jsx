@@ -70,7 +70,7 @@ const Dashboard = () => {
             <SideNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col relative z-10">
+            <div className="flex-1 flex flex-col relative z-30">
                 {/* Navbar */}
                 <Navbar
                     activeTab={activeTab}
