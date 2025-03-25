@@ -6,7 +6,7 @@ import {
 const SideNavbar = ({ activeTab, setActiveTab }) => {
     return (
         <div className="bg-white/80 backdrop-blur-lg shadow-2xl relative z-20 w-64 hidden md:block">
-            <div className="p-5 border-b flex items-center justify-between h-[73px]">
+            <div className="p-5 border-b-[#dee7f1] border-b flex items-center justify-between h-[73px]">
                 <h2 className="font-bold text-xl text-purple-800">Yoga</h2>
             </div>
             <nav className="mt-10">
