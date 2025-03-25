@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Flame, Eye, EyeOff, Lock, User, Activity, Droplet, Triangle } from 'lucide-react';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 const AnimatedBackground = () => {
     const floatingVariants = {
@@ -45,6 +46,7 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate()
 
     const titleVariants = {
         initial: { opacity: 0, y: -50 },
@@ -73,6 +75,7 @@ const Login = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        navigate('/dashboard')
         console.log('Login attempted:', { email, password });
     };
 
