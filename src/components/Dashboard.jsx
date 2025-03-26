@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import MobileSideNavbar from './MobileSideNavbar';
 import SideNavbar from './SideNavbar';
@@ -31,29 +31,33 @@ const Dashboard = () => {
     const [videos, setVideos] = useState(initialVideos);
     const [activeTab, setActiveTab] = useState('dashboard');
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-    const [hoveredVideoId, setHoveredVideoId] = useState(null);
     const [selectedVideo, setSelectedVideo] = useState(null); // Stores selected video for modal
+    const [currentPlaying, setCurrentPlaying] = useState(0);
+    const videoRefs = useRef([]); // Store video element refs
 
     // Drag and Drop Handlers
-    const handleDragStart = (e, video) => {
-        e.dataTransfer.setData('text/plain', video.id);
+    const handleDragStart = (e, index) => {
+        e.dataTransfer.setData('index', index);
     };
 
-    const handleDragOver = (e) => e.preventDefault();
-
-    const handleDrop = (e, targetVideo) => {
+    const handleDrop = (e, targetIndex) => {
         e.preventDefault();
-        const draggedVideoId = e.dataTransfer.getData('text/plain');
-        const draggedVideo = videos.find(v => v.id === draggedVideoId);
-        if (!draggedVideo || draggedVideo.id === targetVideo.id) return;
-
+        const draggedIndex = e.dataTransfer.getData('index');
         const updatedVideos = [...videos];
-        const draggedIndex = updatedVideos.findIndex(v => v.id === draggedVideo.id);
-        const targetIndex = updatedVideos.findIndex(v => v.id === targetVideo.id);
-
-        updatedVideos.splice(draggedIndex, 1);
+        const [draggedVideo] = updatedVideos.splice(draggedIndex, 1);
         updatedVideos.splice(targetIndex, 0, draggedVideo);
         setVideos(updatedVideos);
+    };
+
+    // Play next video when the current one ends
+    useEffect(() => {
+        if (videoRefs.current[currentPlaying]) {
+            videoRefs.current[currentPlaying].play();
+        }
+    }, [currentPlaying]);
+
+    const handleVideoEnd = () => {
+        setCurrentPlaying((prev) => (prev + 1) % videos.length); // Loop back to the first video
     };
 
     return (
@@ -96,33 +100,37 @@ const Dashboard = () => {
                             </div>
                         </motion.div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {videos.map((video) => (
-                                <motion.div
-                                    key={video.id}
-                                    draggable
-                                    onDragStart={(e) => handleDragStart(e, video)}
-                                    onDragOver={handleDragOver}
-                                    onDrop={(e) => handleDrop(e, video)}
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onMouseEnter={() => setHoveredVideoId(video.id)}
-                                    onMouseLeave={() => setHoveredVideoId(null)}
-                                    onClick={() => setSelectedVideo(video)} // Open modal on click
-                                    className="bg-white/80 backdrop-blur-lg rounded-lg overflow-hidden shadow-md cursor-pointer relative"
-                                >
-                                    {hoveredVideoId === video.id ? (
-                                        <video src={video.videoUrl} className="w-full h-48 object-cover" autoPlay loop muted />
-                                    ) : (
-                                        <img src={video.thumbnail} alt={video.title} className="w-full h-48 object-cover" />
-                                    )}
-                                    <div className="p-4">
-                                        <h3 className="font-bold text-lg text-purple-800">{video.title}</h3>
-                                        <p className="text-purple-600">{video.duration}</p>
-                                    </div>
-                                </motion.div>
-                            ))}
-                        </div>
+                            <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+                                {videos.map((video, index) => (
+                                    <motion.div
+                                        key={video.id}
+                                        draggable
+                                        onDragStart={(e) => handleDragStart(e, index)}
+                                        onDragOver={(e) => e.preventDefault()}
+                                        onDrop={(e) => handleDrop(e, index)}
+                                        whileHover={{ scale: 1.05 }}
+                                        className="bg-white/80 backdrop-blur-lg rounded-lg overflow-hidden shadow-md cursor-pointer relative"
+                                    >
+                                        {index === currentPlaying ? (
+                                            <video
+                                                ref={(el) => (videoRefs.current[index] = el)}
+                                                src={video.videoUrl}
+                                                className="w-full h-48 object-cover"
+                                                autoPlay
+                                                onEnded={handleVideoEnd}
+                                                muted
+                                                controls
+                                            />
+                                        ) : (
+                                            <img src={video.thumbnail} alt={video.title} className="w-full h-48 object-cover" />
+                                        )}
+                                        <div className="p-4">
+                                            <h3 className="font-bold text-lg text-purple-800">{video.title}</h3>
+                                            <p className="text-purple-600">{video.duration}</p>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </motion.div>
                     )}
                 </motion.div>
 
