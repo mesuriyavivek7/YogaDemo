@@ -38,6 +38,9 @@ const Dashboard = () => {
     const [selectedVideo, setSelectedVideo] = useState(null); // Stores selected video for modal
     const [currentPlaying, setCurrentPlaying] = useState(0);
     const videoRefs = useRef([]); // Store video element refs
+    const multipleVideoRefs = useRef(null)
+    const [isPlayingAll, setIsPlayingAll] = useState(false);
+    const [currentPlayingIndex, setCurrentPlayingIndex] = useState(0);
 
     // Drag and Drop Handlers
     const handleDragStart = (e, index) => {
@@ -72,6 +75,19 @@ const Dashboard = () => {
 
     const handleVideoEnd = () => {
         setCurrentPlaying((prev) => (prev + 1) % videos.length); // Loop back to the first video
+    };
+
+    const handlePlayAll = () => {
+        setIsPlayingAll(true);
+        setCurrentPlayingIndex(0);
+    };
+
+    const handleNewVideoStart = () => {
+        if (currentPlayingIndex < videos.length - 1) {
+            setCurrentPlayingIndex((prev) => prev + 1);
+        } else {
+            setIsPlayingAll(false);
+        }
     };
 
     return (
@@ -114,6 +130,12 @@ const Dashboard = () => {
                             </div>
                         </motion.div>
                     ) : (
+                        <div className='flex flex-col'>
+                            <div className='flex place-content-end'>
+                             <button onClick={handlePlayAll} className="bg-purple-600 text-white px-4 py-2 rounded-md font-bold">
+                                   Play All Videos
+                              </button>
+                            </div>
                             <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
                                 {videos.map((video, index) => (
                                     <motion.div
@@ -146,6 +168,7 @@ const Dashboard = () => {
                                     </motion.div>
                                 ))}
                             </motion.div>
+                        </div>
                     )}
                 </motion.div>
 
@@ -161,6 +184,24 @@ const Dashboard = () => {
                         </div>
                     </div>
                 )}
+                 {isPlayingAll && (
+                        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                            <div className="bg-white rounded-lg overflow-hidden shadow-lg w-11/12 md:w-3/4 lg:w-1/2">
+                                <div className="flex justify-between items-center p-4 border-b">
+                                    <h2 className="text-xl font-bold text-purple-800">{videos[currentPlayingIndex].title}</h2>
+                                    <button onClick={() => setIsPlayingAll(false)} className="text-red-500 font-bold text-lg">✖</button>
+                                </div>
+                                <video
+                                    ref={multipleVideoRefs}
+                                    src={videos[currentPlayingIndex].videoUrl}
+                                    controls
+                                    autoPlay
+                                    onEnded={handleNewVideoStart}
+                                    className="w-full h-auto"
+                                />
+                            </div>
+                        </div>
+                    )}
             </div>
         </div>
     );
