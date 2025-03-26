@@ -117,6 +117,7 @@ const Dashboard = () => {
                             <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
                                 {videos.map((video, index) => (
                                     <motion.div
+                                    onClick={()=>setSelectedVideo(video)}
                                         key={video.id}
                                         draggable
                                         onDragStart={(e) => handleDragStart(e, index)}
@@ -154,7 +155,7 @@ const Dashboard = () => {
                         <div className="bg-white rounded-lg overflow-hidden shadow-lg w-11/12 md:w-3/4 lg:w-1/2">
                             <div className="flex justify-between items-center p-4 border-b">
                                 <h2 className="text-xl font-bold text-purple-800">{selectedVideo.title}</h2>
-                                <button onClick={() => setSelectedVideo(null)} className="text-red-500 font-bold text-lg">✖</button>
+                                <button onClick={() => setSelectedVideo(null)} className="text-red-500 font-bold cursor-pointer text-lg">✖</button>
                             </div>
                             <video src={selectedVideo.videoUrl} controls autoPlay className="w-full h-auto" />
                         </div>
