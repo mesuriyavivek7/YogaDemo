@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useSelector, useDispatch } from 'react-redux';
+import { changeVideoSeq } from '../redux/actions/videoAction';
 import MobileSideNavbar from './MobileSideNavbar';
 import SideNavbar from './SideNavbar';
 import Navbar from './Navbar';
@@ -19,15 +21,17 @@ import yoga7i from "../assets/yoga7.png"
 
 // Sample video data
 const initialVideos = [
-    { id: '1', title: 'Yoga Basics', thumbnail: yoga1i, videoUrl: yoga1, duration: '12:34' },
-    { id: '2', title: 'Advanced Stretching', thumbnail: yoga7i, videoUrl: yoga7, duration: '18:45' },
-    { id: '3', title: 'Meditation Techniques', thumbnail: yoga3i, videoUrl: yoga3, duration: '22:11' },
-    { id: '4', title: 'Power Yoga', thumbnail: yoga4i, videoUrl: yoga4, duration: '45:00' },
-    { id: '5', title: 'Relaxation Yoga', thumbnail: yoga5i, videoUrl: yoga5, duration: '30:00' },
-    { id: '6', title: 'Morning Flow', thumbnail: yoga6i, videoUrl: yoga6, duration: '20:00' }
+    { id: '1', title: 'Yoga Basics', thumbnail: yoga1i, videoUrl: yoga1, duration: '00:310' },
+    { id: '2', title: 'Advanced Stretching', thumbnail: yoga7i, videoUrl: yoga7, duration: '00:20' },
+    { id: '3', title: 'Meditation Techniques', thumbnail: yoga3i, videoUrl: yoga3, duration: '00:13' },
+    { id: '4', title: 'Power Yoga', thumbnail: yoga4i, videoUrl: yoga4, duration: '00:18' },
+    { id: '5', title: 'Relaxation Yoga', thumbnail: yoga5i, videoUrl: yoga5, duration: '00:15' },
+    { id: '6', title: 'Morning Flow', thumbnail: yoga6i, videoUrl: yoga6, duration: '00:19' }
 ];
 
 const Dashboard = () => {
+    const dispatch = useDispatch()
+    const videoSeq = useSelector((state)=>state.videoSeq)
     const [videos, setVideos] = useState(initialVideos);
     const [activeTab, setActiveTab] = useState('dashboard');
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -46,8 +50,18 @@ const Dashboard = () => {
         const updatedVideos = [...videos];
         const [draggedVideo] = updatedVideos.splice(draggedIndex, 1);
         updatedVideos.splice(targetIndex, 0, draggedVideo);
-        setVideos(updatedVideos);
+        const updatedSeq = updatedVideos.map((vid)=>vid.id)
+        dispatch(changeVideoSeq(updatedSeq))
     };
+
+
+    useEffect(() => {
+        if (videoSeq.length) {
+            const updatedVideos = videoSeq.map((id) => initialVideos.find((video) => video.id === id));
+            setVideos(updatedVideos);
+        }
+    }, [videoSeq]);
+    
 
     // Play next video when the current one ends
     useEffect(() => {
